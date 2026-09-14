@@ -73,3 +73,51 @@ http://<NEW_EC2_PUBLIC_IP>
 EC2 Instance 與 Public IPv4 是不同的概念。
 
 Stop / Start 後，如果沒有使用固定 IP，重新操作前應先確認目前的 Public IPv4。
+
+## 3. Nginx 首頁沒有更新
+
+### 問題
+
+修改網頁內容後，瀏覽器仍然顯示原本的 Nginx 頁面。
+
+### 原因
+
+檔名輸入錯誤，導致內容被寫入另一個新建立的檔案，而不是 Nginx 實際使用的首頁檔案。
+
+例如原本應修改：
+
+```text
+index.nginx-debian.html
+```
+
+但實際輸入成：
+
+```text
+index.nginx-debin.html
+```
+
+Linux 會把不同檔名視為完全不同的檔案，因此新的錯誤檔案被建立。
+
+### 排查方式
+
+先查看網站目錄裡有哪些檔案：
+
+```bash
+ls -l /var/www/html
+```
+
+再確認真正首頁檔案的內容：
+
+```bash
+cat /var/www/html/index.nginx-debian.html
+```
+
+### 解法
+
+確認正確檔名後，再修改真正的首頁檔案。
+
+### 學到的重點
+
+Linux 的檔名與路徑必須完全正確。
+
+只差一個字母，就會被視為不同的檔案。
