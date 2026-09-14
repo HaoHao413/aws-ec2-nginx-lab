@@ -121,3 +121,49 @@ cat /var/www/html/index.nginx-debian.html
 Linux 的檔名與路徑必須完全正確。
 
 只差一個字母，就會被視為不同的檔案。
+
+## 4. HTTP 404 Not Found
+
+### 問題
+
+使用 curl 存取不存在的路徑：
+
+```bash
+curl http://127.0.0.1/abc123
+```
+
+Nginx 回傳：
+
+```text
+404 Not Found
+```
+
+### 原因
+
+Nginx 本身正常運作，但要求的 `/abc123` 資源不存在。
+
+404 不代表 Web Server 掛掉，而是代表 Server 有收到 Request，只是找不到指定資源。
+
+### 排查方式
+
+查看 Nginx access log：
+
+```bash
+sudo tail -n 10 /var/log/nginx/access.log
+```
+
+可以看到類似：
+
+```text
+"GET /abc123 HTTP/1.1" 404
+```
+
+### 學到的重點
+
+HTTP 404 代表：
+
+- Web Server 有收到 Request
+- Nginx 有正常回應
+- 但指定的資源不存在
+
+排查時不能把 404 跟「Server 完全連不上」混在一起。
