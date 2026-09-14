@@ -235,3 +235,83 @@ HTTP 403 不代表檔案不存在。
 - 但 Nginx 沒有權限讀取該檔案
 
 因此排查 403 時，要檢查 Linux 檔案權限與 Nginx error log。
+
+## 6. Basic Troubleshooting Flow
+
+當網站無法正常開啟時，可以依照以下順序排查。
+
+### 1. 確認 Nginx 服務是否正常
+
+```bash
+systemctl status nginx
+```
+
+如果顯示：
+
+```text
+active (running)
+```
+
+代表 Nginx 服務目前正在運作。
+
+### 2. 確認 Port 80 是否有在監聽
+
+```bash
+ss -tuln | grep ':80'
+```
+
+如果看到：
+
+```text
+0.0.0.0:80
+```
+
+代表有服務正在監聽 HTTP Port 80。
+
+### 3. 從 EC2 本機測試網站
+
+```bash
+curl http://127.0.0.1
+```
+
+如果本機可以正常取得網頁內容，代表 Nginx 與網站內容大致正常。
+
+### 4. 檢查外部連線
+
+如果本機測試成功，但外部瀏覽器無法連線，檢查：
+
+- EC2 目前的 Public IPv4 是否正確
+- Security Group 是否允許 TCP Port 80
+- 是否使用 `http://` 連線
+
+### 5. 查看 Nginx Logs
+
+Access log：
+
+```bash
+sudo tail -n 20 /var/log/nginx/access.log
+```
+
+Error log：
+
+```bash
+sudo tail -n 20 /var/log/nginx/error.log
+```
+
+透過 log 可以確認 Request 是否有進入 Nginx，以及 Server 是否發生錯誤。
+
+### 排查觀念
+
+```text
+Service
+↓
+Listening Port
+↓
+Local Test
+↓
+External Network
+↓
+Logs
+```
+
+先確認哪一層正常，再往下一層排查，避免一次修改太多設定。
