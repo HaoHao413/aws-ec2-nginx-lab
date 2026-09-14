@@ -167,3 +167,71 @@ HTTP 404 代表：
 - 但指定的資源不存在
 
 排查時不能把 404 跟「Server 完全連不上」混在一起。
+
+## 5. HTTP 403 Forbidden 與 Linux 檔案權限
+
+### 問題
+
+網站檔案存在，但 Nginx 回傳：
+
+```text
+403 Forbidden
+```
+
+### 原因
+
+Linux 檔案權限設定錯誤，導致 Nginx 沒有權限讀取網站檔案。
+
+例如將檔案權限設定為：
+
+```bash
+sudo chmod 000 /var/www/html/secret.html
+```
+
+此時檔案權限會變成：
+
+```text
+----------
+```
+
+代表 Owner、Group、Others 都沒有讀寫執行權限。
+
+### 排查方式
+
+先查看檔案權限：
+
+```bash
+ls -l /var/www/html/secret.html
+```
+
+再查看 Nginx error log：
+
+```bash
+sudo tail -n 10 /var/log/nginx/error.log
+```
+
+可以看到類似：
+
+```text
+Permission denied
+```
+
+### 解法
+
+將檔案權限調整回可讀取，例如：
+
+```bash
+sudo chmod 644 /var/www/html/secret.html
+```
+
+### 學到的重點
+
+HTTP 403 不代表檔案不存在。
+
+它可能代表：
+
+- 檔案存在
+- Nginx 有收到 Request
+- 但 Nginx 沒有權限讀取該檔案
+
+因此排查 403 時，要檢查 Linux 檔案權限與 Nginx error log。
