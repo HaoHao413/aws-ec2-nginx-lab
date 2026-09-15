@@ -1,4 +1,4 @@
-# Troubleshooting Notes
+# 問題排解紀錄 (Troubleshooting)
 
 ## 1. SSH Permission denied (publickey)
 
